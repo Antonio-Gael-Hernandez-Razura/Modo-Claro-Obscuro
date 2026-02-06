@@ -6,55 +6,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
 
-/* Hace que el padding y el borde no aumenten
-   el tamaño total de los elementos */
 * {
   box-sizing: border-box;
 }
 
 :root {
-  /* Color de fondo principal */
   --bg: #0f172a;
-
-  /* Color del texto principal */
   --fg: #e5e7eb;
-
-  /* Color de fondo de tarjetas */
   --card: #020617;
-
-  /* Color de acento (botones, switch) */
   --accent: #38bdf8;
 }
 
-
 body.light {
-  --bg: #f3f4f6;      /* Fondo claro */
-  --fg: #111827;      /* Texto oscuro */
-  --card: #ffffff;    /* Tarjetas blancas */
-  --accent: #2563eb;   /* Acento azul */
+  --bg: #f3f4f6;
+  --fg: #111827;
+  --card: #ffffff;
+  --accent: #2563eb;
 }
 
-
 body {
-  margin: 0; /* Elimina márgenes por defecto */
+  margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--bg); /* Usa variable de fondo */
-  color: var(--fg);      /* Usa variable de texto */
-  min-height: 100vh;     /* Ocupa toda la pantalla */
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
   display: flex;
-  align-items: center;   /* Centra verticalmente */
-  justify-content: center; /* Centra horizontalmente */
+  align-items: center;
+  justify-content: center;
   padding: 1.5rem;
   transition: background 0.25s ease, color 0.25s ease;
 }
 
-
 .card {
-  background: var(--card); /* Fondo según el tema */
-  border-radius: 16px;     /* Bordes redondeados */
+  background: var(--card);
+  border-radius: 16px;
   padding: 1.75rem 1.5rem;
   width: 100%;
-  max-width: 420px;        /* Ancho máximo */
+  max-width: 420px;
   box-shadow: 0 14px 35px rgba(0,0,0,0.45);
   border: 1px solid rgba(148,163,184,0.3);
 }
@@ -64,13 +52,11 @@ h1 {
   font-size: 1.4rem;
 }
 
-/* Subtítulo descriptivo */
 p.subtitle {
   margin: 0 0 1rem;
   font-size: 0.9rem;
-  opacity: 0.8; /* Texto secundario */
+  opacity: 0.8;
 }
-
 
 .preview {
   margin-top: 1.2rem;
@@ -80,7 +66,6 @@ p.subtitle {
   font-size: 0.9rem;
 }
 
-
 .toggle-row {
   display: flex;
   justify-content: space-between;
@@ -89,47 +74,49 @@ p.subtitle {
   margin-top: 0.75rem;
 }
 
-/* Texto que indica el modo actual */
 .mode-label {
   font-size: 0.9rem;
   opacity: 0.9;
 }
 
+/* SWITCH ACCESIBLE */
 .pill {
   width: 64px;
   height: 32px;
-  border-radius: 999px; /* Forma de pastilla */
+  border-radius: 999px;
   background: rgba(148,163,184,0.4);
   display: flex;
   align-items: center;
   padding: 3px;
   cursor: pointer;
   transition: background 0.2s ease;
+  border: none;
+  outline: none;
 }
 
-/* Bolita del switch */
+/* Foco visible al usar TAB */
+.pill:focus-visible {
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.6);
+}
+
 .thumb {
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: var(--accent); /* Color principal */
+  background: var(--accent);
   transform: translateX(0);
   transition: transform 0.2s ease;
 }
 
-/* Cuando el modo es claro, la bolita se mueve */
 body.light .thumb {
   transform: translateX(30px);
 }
 
-/*texto de ayuda*/
 .hint {
   margin-top: 0.7rem;
   font-size: 0.8rem;
   opacity: 0.8;
 }
-
-/*Resetear preferencia*/
 
 .btn {
   margin-top: 1.1rem;
@@ -144,21 +131,25 @@ body.light .thumb {
 }
   </style>
 </head>
+
 <body>
   <section class="card">
     <h1>Modo claro / oscuro</h1>
+
     <p class="subtitle">
       Usa el interruptor para cambiar el tema de la página. La preferencia se guarda.
     </p>
 
     <div class="toggle-row">
       <span class="mode-label" id="mode-label">Modo oscuro</span>
-      <div class="pill" id="theme-toggle" aria-label="Cambiar tema">
+
+      <!-- BOTÓN ACCESIBLE -->
+      <button class="pill" id="theme-toggle" aria-label="Cambiar tema">
         <div class="thumb"></div>
-      </div>
+      </button>
     </div>
 
-    <div class="preview" id="preview">
+    <div class="preview">
       Este es un ejemplo de contenido que cambia de aspecto según el tema
       seleccionado por el usuario.
     </div>
@@ -176,29 +167,29 @@ body.light .thumb {
     const modeLabel = document.getElementById("mode-label");
     const resetBtn = document.getElementById("reset-pref");
 
-function applyTheme(theme) {
-  if (theme === "light") {
-    document.body.classList.add("light");
-    modeLabel.textContent = "Modo claro";
-  } else {
-    document.body.classList.remove("light");
-    modeLabel.textContent = "Modo oscuro";
-  }
+    function applyTheme(theme) {
+      if (theme === "light") {
+        document.body.classList.add("light");
+        modeLabel.textContent = "Modo claro";
+      } else {
+        document.body.classList.remove("light");
+        modeLabel.textContent = "Modo oscuro";
+      }
 
-  modeLabel.style.opacity = "0.5";
-  setTimeout(() => modeLabel.style.opacity = "1", 150);
-}
+      modeLabel.style.opacity = "0.5";
+      setTimeout(() => modeLabel.style.opacity = "1", 150);
+    }
 
- function loadTheme() {
-  const stored = localStorage.getItem("theme");
+    function loadTheme() {
+      const stored = localStorage.getItem("theme");
 
-  if (stored) {
-    applyTheme(stored);
-  } else {
-    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-    applyTheme(prefersLight ? "light" : "dark");
-  }
-}
+      if (stored) {
+        applyTheme(stored);
+      } else {
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        applyTheme(prefersLight ? "light" : "dark");
+      }
+    }
 
     toggle.addEventListener("click", () => {
       const isLight = document.body.classList.contains("light");
