@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>JS Práctica 2: Modo claro/oscuro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
+  <meta charset="UTF-8" />
+  <title>Modo claro/oscuro (Mejor UX)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 * {
   box-sizing: border-box;
@@ -137,10 +136,10 @@ body.light .thumb {
     <h1>Modo claro / oscuro</h1>
 
     <p class="subtitle">
-      Usa el interruptor para cambiar el tema de la página. La preferencia se guarda.
+      Cambia el tema. Se guardará tu preferencia y también funciona con teclado.
     </p>
 
-    <div class="toggle-row">
+    <div class="row">
       <span class="mode-label" id="mode-label">Modo oscuro</span>
 
       <!-- BOTÓN ACCESIBLE -->
@@ -155,15 +154,19 @@ body.light .thumb {
     </div>
 
     <p class="hint">
-      Tip: revisa el código para ver cómo se usan clases en el body y
-      <code>localStorage</code> para recordar el tema.
+      UX aplicado: switch accesible, foco visible, preferencia del sistema, feedback y reset claro.
     </p>
 
-    <button class="btn" id="reset-pref">Olvidar preferencia</button>
+    <div class="actions">
+      <button class="btn" id="reset-pref" type="button">Olvidar preferencia</button>
+      <button class="btn primary" id="announce" type="button">Mostrar estado</button>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite"></div>
   </section>
 
   <script>
-    const toggle = document.getElementById("theme-toggle");
+    const themeSwitch = document.getElementById("theme-switch");
     const modeLabel = document.getElementById("mode-label");
     const resetBtn = document.getElementById("reset-pref");
 
@@ -196,11 +199,24 @@ body.light .thumb {
       const newTheme = isLight ? "dark" : "light";
       applyTheme(newTheme);
       localStorage.setItem("theme", newTheme);
+      setStatus("Preferencia guardada.");
     });
 
+    // UX: botón reset con confirmación para evitar borrados accidentales
     resetBtn.addEventListener("click", () => {
+      const ok = confirm("¿Seguro que quieres olvidar tu preferencia de tema?");
+      if (!ok) return;
+
       localStorage.removeItem("theme");
-      applyTheme("dark");
+      const fallback = systemPrefersLight() ? "light" : "dark";
+      applyTheme(fallback);
+      setStatus("Preferencia eliminada. Volví al tema del sistema.");
+    });
+
+    // Botón que muestra el estado (solo para demo UX)
+    announceBtn.addEventListener("click", () => {
+      const stored = localStorage.getItem("theme");
+      setStatus(stored ? `Guardado en localStorage: ${stored}` : "No hay tema guardado.");
     });
 
     loadTheme();
