@@ -5,161 +5,136 @@
   <title>Modo claro/oscuro (Mejor UX)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <style>
-    * { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-    :root{
-      --bg:#0f172a; --fg:#e5e7eb; --card:#020617; --accent:#38bdf8;
-      --muted: rgba(148,163,184,0.75);
-      --border: rgba(148,163,184,0.35);
-      --shadow: 0 14px 35px rgba(0,0,0,0.45);
-    }
+:root {
+  --bg: #0f172a;
+  --fg: #e5e7eb;
+  --card: #020617;
+  --accent: #38bdf8;
+}
 
-    body.light{
-      --bg:#f3f4f6; --fg:#111827; --card:#ffffff; --accent:#2563eb;
-      --muted: rgba(17,24,39,0.65);
-      --border: rgba(17,24,39,0.20);
-      --shadow: 0 14px 35px rgba(0,0,0,0.12);
-    }
+body.light {
+  --bg: #f3f4f6;
+  --fg: #111827;
+  --card: #ffffff;
+  --accent: #2563eb;
+}
 
-    /* UX: respeta usuarios que prefieren menos animación */
-    @media (prefers-reduced-motion: reduce) {
-      * { transition: none !important; }
-    }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  transition: background 0.25s ease, color 0.25s ease;
+}
 
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      min-height: 100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:1.5rem;
-      transition: background .25s ease, color .25s ease;
-    }
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 14px 35px rgba(0,0,0,0.45);
+  border: 1px solid rgba(148,163,184,0.3);
+}
 
-    .card{
-      background: var(--card);
-      border-radius: 16px;
-      padding: 1.75rem 1.5rem;
-      width: 100%;
-      max-width: 460px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-    }
+h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.4rem;
+}
 
-    h1 { margin:0 0 .35rem; font-size: 1.4rem; }
-    .subtitle { margin:0 0 1rem; font-size:.92rem; color: var(--muted); }
+p.subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
 
-    .row{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:1rem;
-      margin-top:.75rem;
-    }
+.preview {
+  margin-top: 1.2rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px dashed rgba(148,163,184,0.6);
+  font-size: 0.9rem;
+}
 
-    .mode-label{ font-size:.95rem; }
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
 
-    /* UX: switch accesible (checkbox oculto, UI visible) */
-    .switch{
-      display:flex;
-      align-items:center;
-      gap:.6rem;
-    }
+.mode-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
 
-    .switch input{
-      /* Ocultarlo visualmente pero mantenerlo accesible */
-      position:absolute;
-      opacity:0;
-      width:1px;
-      height:1px;
-    }
+/* SWITCH ACCESIBLE */
+.pill {
+  width: 64px;
+  height: 32px;
+  border-radius: 999px;
+  background: rgba(148,163,184,0.4);
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  border: none;
+  outline: none;
+}
 
-    .pill{
-      width:64px; height:32px;
-      border-radius:999px;
-      background: rgba(148,163,184,0.4);
-      display:flex;
-      align-items:center;
-      padding:3px;
-      cursor:pointer;
-      transition: background .2s ease, outline .2s ease;
-      user-select:none;
-    }
+/* Foco visible al usar TAB */
+.pill:focus-visible {
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.6);
+}
 
-    .thumb{
-      width:26px; height:26px;
-      border-radius:999px;
-      background: var(--accent);
-      transform: translateX(0);
-      transition: transform .2s ease;
-    }
+.thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translateX(0);
+  transition: transform 0.2s ease;
+}
 
-    /* cuando el checkbox está activado => modo claro */
-    #theme-switch:checked + label .thumb{
-      transform: translateX(30px);
-    }
+body.light .thumb {
+  transform: translateX(30px);
+}
 
-    /* UX: foco visible (para teclado) */
-    #theme-switch:focus-visible + label .pill{
-      outline: 3px solid rgba(56,189,248,0.35);
-      outline-offset: 3px;
-    }
+.hint {
+  margin-top: 0.7rem;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
 
-    .preview{
-      margin-top: 1.2rem;
-      padding: 1rem;
-      border-radius: 12px;
-      border: 1px dashed var(--border);
-      font-size: 0.95rem;
-      color: var(--fg);
-    }
-
-    .hint{
-      margin-top: .7rem;
-      font-size: .82rem;
-      color: var(--muted);
-    }
-
-    .actions{
-      display:flex;
-      gap:.6rem;
-      margin-top:1rem;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      font: inherit;
-      border-radius:999px;
-      padding: .5rem 1rem;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--fg);
-      cursor:pointer;
-      font-size:.9rem;
-    }
-
-    .btn.primary{
-      border-color: transparent;
-      background: var(--accent);
-      color: white;
-    }
-
-    /* UX: mensajito de estado */
-    .status{
-      margin-top:.8rem;
-      font-size:.85rem;
-      color: var(--muted);
-    }
+.btn {
+  margin-top: 1.1rem;
+  font: inherit;
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(148,163,184,0.6);
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
   </style>
 </head>
 
 <body>
-  <section class="card" aria-labelledby="title">
-    <h1 id="title">Modo claro / oscuro</h1>
+  <section class="card">
+    <h1>Modo claro / oscuro</h1>
+
     <p class="subtitle">
       Cambia el tema. Se guardará tu preferencia y también funciona con teclado.
     </p>
@@ -167,25 +142,15 @@
     <div class="row">
       <span class="mode-label" id="mode-label">Modo oscuro</span>
 
-      <div class="switch">
-        <!-- UX: checkbox real para accesibilidad -->
-        <input
-          type="checkbox"
-          id="theme-switch"
-          aria-label="Cambiar entre modo claro y oscuro"
-        />
-
-        <!-- label clickeable asociado al checkbox -->
-        <label for="theme-switch">
-          <div class="pill" id="theme-toggle" role="switch" aria-checked="false">
-            <div class="thumb"></div>
-          </div>
-        </label>
-      </div>
+      <!-- BOTÓN ACCESIBLE -->
+      <button class="pill" id="theme-toggle" aria-label="Cambiar tema">
+        <div class="thumb"></div>
+      </button>
     </div>
 
-    <div class="preview" id="preview">
-      Este contenido cambia con el tema y respeta preferencias del sistema.
+    <div class="preview">
+      Este es un ejemplo de contenido que cambia de aspecto según el tema
+      seleccionado por el usuario.
     </div>
 
     <p class="hint">
@@ -204,49 +169,34 @@
     const themeSwitch = document.getElementById("theme-switch");
     const modeLabel = document.getElementById("mode-label");
     const resetBtn = document.getElementById("reset-pref");
-    const status = document.getElementById("status");
-    const announceBtn = document.getElementById("announce");
-    const pill = document.getElementById("theme-toggle");
-
-    // UX: si no hay preferencia guardada, usa la del sistema
-    const systemPrefersLight = () =>
-      window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
-
-    function setStatus(msg) {
-      status.textContent = msg;
-    }
 
     function applyTheme(theme) {
-      const isLight = theme === "light";
+      if (theme === "light") {
+        document.body.classList.add("light");
+        modeLabel.textContent = "Modo claro";
+      } else {
+        document.body.classList.remove("light");
+        modeLabel.textContent = "Modo oscuro";
+      }
 
-      // UI
-      document.body.classList.toggle("light", isLight);
-      modeLabel.textContent = isLight ? "Modo claro" : "Modo oscuro";
-
-      // UX accesible: sincroniza switch
-      themeSwitch.checked = isLight;
-      pill.setAttribute("aria-checked", String(isLight));
-
-      // feedback suave
-      setStatus(`Tema activo: ${isLight ? "claro" : "oscuro"}.`);
+      modeLabel.style.opacity = "0.5";
+      setTimeout(() => modeLabel.style.opacity = "1", 150);
     }
 
     function loadTheme() {
       const stored = localStorage.getItem("theme");
 
-      if (stored === "light" || stored === "dark") {
+      if (stored) {
         applyTheme(stored);
-        setStatus("Cargué tu preferencia guardada.");
       } else {
-        const fallback = systemPrefersLight() ? "light" : "dark";
-        applyTheme(fallback);
-        setStatus("No había preferencia guardada. Usé la del sistema.");
+        const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+        applyTheme(prefersLight ? "light" : "dark");
       }
     }
 
-    // Cambiar tema (click o teclado en el checkbox)
-    themeSwitch.addEventListener("change", () => {
-      const newTheme = themeSwitch.checked ? "light" : "dark";
+    toggle.addEventListener("click", () => {
+      const isLight = document.body.classList.contains("light");
+      const newTheme = isLight ? "dark" : "light";
       applyTheme(newTheme);
       localStorage.setItem("theme", newTheme);
       setStatus("Preferencia guardada.");
