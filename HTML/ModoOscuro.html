@@ -1,215 +1,272 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>JS Práctica 2: Modo claro/oscuro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Modo claro/oscuro (Mejor UX)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
+    * { box-sizing: border-box; }
 
-/* Hace que el padding y el borde no aumenten
-   el tamaño total de los elementos */
-* {
-  box-sizing: border-box;
-}
+    :root{
+      --bg:#0f172a; --fg:#e5e7eb; --card:#020617; --accent:#38bdf8;
+      --muted: rgba(148,163,184,0.75);
+      --border: rgba(148,163,184,0.35);
+      --shadow: 0 14px 35px rgba(0,0,0,0.45);
+    }
 
-:root {
-  /* Color de fondo principal */
-  --bg: #0f172a;
+    body.light{
+      --bg:#f3f4f6; --fg:#111827; --card:#ffffff; --accent:#2563eb;
+      --muted: rgba(17,24,39,0.65);
+      --border: rgba(17,24,39,0.20);
+      --shadow: 0 14px 35px rgba(0,0,0,0.12);
+    }
 
-  /* Color del texto principal */
-  --fg: #e5e7eb;
+    /* UX: respeta usuarios que prefieren menos animación */
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
 
-  /* Color de fondo de tarjetas */
-  --card: #020617;
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      min-height: 100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:1.5rem;
+      transition: background .25s ease, color .25s ease;
+    }
 
-  /* Color de acento (botones, switch) */
-  --accent: #38bdf8;
-}
+    .card{
+      background: var(--card);
+      border-radius: 16px;
+      padding: 1.75rem 1.5rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
 
+    h1 { margin:0 0 .35rem; font-size: 1.4rem; }
+    .subtitle { margin:0 0 1rem; font-size:.92rem; color: var(--muted); }
 
-body.light {
-  --bg: #f3f4f6;      /* Fondo claro */
-  --fg: #111827;      /* Texto oscuro */
-  --card: #ffffff;    /* Tarjetas blancas */
-  --accent: #2563eb;   /* Acento azul */
-}
+    .row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:1rem;
+      margin-top:.75rem;
+    }
 
+    .mode-label{ font-size:.95rem; }
 
-body {
-  margin: 0; /* Elimina márgenes por defecto */
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  background: var(--bg); /* Usa variable de fondo */
-  color: var(--fg);      /* Usa variable de texto */
-  min-height: 100vh;     /* Ocupa toda la pantalla */
-  display: flex;
-  align-items: center;   /* Centra verticalmente */
-  justify-content: center; /* Centra horizontalmente */
-  padding: 1.5rem;
-  transition: background 0.25s ease, color 0.25s ease;
-}
+    /* UX: switch accesible (checkbox oculto, UI visible) */
+    .switch{
+      display:flex;
+      align-items:center;
+      gap:.6rem;
+    }
 
+    .switch input{
+      /* Ocultarlo visualmente pero mantenerlo accesible */
+      position:absolute;
+      opacity:0;
+      width:1px;
+      height:1px;
+    }
 
-.card {
-  background: var(--card); /* Fondo según el tema */
-  border-radius: 16px;     /* Bordes redondeados */
-  padding: 1.75rem 1.5rem;
-  width: 100%;
-  max-width: 420px;        /* Ancho máximo */
-  box-shadow: 0 14px 35px rgba(0,0,0,0.45);
-  border: 1px solid rgba(148,163,184,0.3);
-}
+    .pill{
+      width:64px; height:32px;
+      border-radius:999px;
+      background: rgba(148,163,184,0.4);
+      display:flex;
+      align-items:center;
+      padding:3px;
+      cursor:pointer;
+      transition: background .2s ease, outline .2s ease;
+      user-select:none;
+    }
 
-h1 {
-  margin: 0 0 0.35rem;
-  font-size: 1.4rem;
-}
+    .thumb{
+      width:26px; height:26px;
+      border-radius:999px;
+      background: var(--accent);
+      transform: translateX(0);
+      transition: transform .2s ease;
+    }
 
-/* Subtítulo descriptivo */
-p.subtitle {
-  margin: 0 0 1rem;
-  font-size: 0.9rem;
-  opacity: 0.8; /* Texto secundario */
-}
+    /* cuando el checkbox está activado => modo claro */
+    #theme-switch:checked + label .thumb{
+      transform: translateX(30px);
+    }
 
+    /* UX: foco visible (para teclado) */
+    #theme-switch:focus-visible + label .pill{
+      outline: 3px solid rgba(56,189,248,0.35);
+      outline-offset: 3px;
+    }
 
-.preview {
-  margin-top: 1.2rem;
-  padding: 1rem;
-  border-radius: 12px;
-  border: 1px dashed rgba(148,163,184,0.6);
-  font-size: 0.9rem;
-}
+    .preview{
+      margin-top: 1.2rem;
+      padding: 1rem;
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      font-size: 0.95rem;
+      color: var(--fg);
+    }
 
+    .hint{
+      margin-top: .7rem;
+      font-size: .82rem;
+      color: var(--muted);
+    }
 
-.toggle-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 0.75rem;
-}
+    .actions{
+      display:flex;
+      gap:.6rem;
+      margin-top:1rem;
+      flex-wrap:wrap;
+    }
 
-/* Texto que indica el modo actual */
-.mode-label {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
+    .btn{
+      font: inherit;
+      border-radius:999px;
+      padding: .5rem 1rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--fg);
+      cursor:pointer;
+      font-size:.9rem;
+    }
 
-.pill {
-  width: 64px;
-  height: 32px;
-  border-radius: 999px; /* Forma de pastilla */
-  background: rgba(148,163,184,0.4);
-  display: flex;
-  align-items: center;
-  padding: 3px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
+    .btn.primary{
+      border-color: transparent;
+      background: var(--accent);
+      color: white;
+    }
 
-/* Bolita del switch */
-.thumb {
-  width: 26px;
-  height: 26px;
-  border-radius: 999px;
-  background: var(--accent); /* Color principal */
-  transform: translateX(0);
-  transition: transform 0.2s ease;
-}
-
-/* Cuando el modo es claro, la bolita se mueve */
-body.light .thumb {
-  transform: translateX(30px);
-}
-
-/*texto de ayuda*/
-.hint {
-  margin-top: 0.7rem;
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-/*Resetear preferencia*/
-
-.btn {
-  margin-top: 1.1rem;
-  font: inherit;
-  border-radius: 999px;
-  padding: 0.45rem 1rem;
-  border: 1px solid rgba(148,163,184,0.6);
-  background: transparent;
-  color: var(--fg);
-  cursor: pointer;
-  font-size: 0.85rem;
-}
+    /* UX: mensajito de estado */
+    .status{
+      margin-top:.8rem;
+      font-size:.85rem;
+      color: var(--muted);
+    }
   </style>
 </head>
+
 <body>
-  <section class="card">
-    <h1>Modo claro / oscuro</h1>
+  <section class="card" aria-labelledby="title">
+    <h1 id="title">Modo claro / oscuro</h1>
     <p class="subtitle">
-      Usa el interruptor para cambiar el tema de la página. La preferencia se guarda.
+      Cambia el tema. Se guardará tu preferencia y también funciona con teclado.
     </p>
 
-    <div class="toggle-row">
+    <div class="row">
       <span class="mode-label" id="mode-label">Modo oscuro</span>
-      <div class="pill" id="theme-toggle" aria-label="Cambiar tema">
-        <div class="thumb"></div>
+
+      <div class="switch">
+        <!-- UX: checkbox real para accesibilidad -->
+        <input
+          type="checkbox"
+          id="theme-switch"
+          aria-label="Cambiar entre modo claro y oscuro"
+        />
+
+        <!-- label clickeable asociado al checkbox -->
+        <label for="theme-switch">
+          <div class="pill" id="theme-toggle" role="switch" aria-checked="false">
+            <div class="thumb"></div>
+          </div>
+        </label>
       </div>
     </div>
 
     <div class="preview" id="preview">
-      Este es un ejemplo de contenido que cambia de aspecto según el tema
-      seleccionado por el usuario.
+      Este contenido cambia con el tema y respeta preferencias del sistema.
     </div>
 
     <p class="hint">
-      Tip: revisa el código para ver cómo se usan clases en el body y
-      <code>localStorage</code> para recordar el tema.
+      UX aplicado: switch accesible, foco visible, preferencia del sistema, feedback y reset claro.
     </p>
 
-    <button class="btn" id="reset-pref">Olvidar preferencia</button>
+    <div class="actions">
+      <button class="btn" id="reset-pref" type="button">Olvidar preferencia</button>
+      <button class="btn primary" id="announce" type="button">Mostrar estado</button>
+    </div>
+
+    <div class="status" id="status" role="status" aria-live="polite"></div>
   </section>
 
   <script>
-    const toggle = document.getElementById("theme-toggle");
+    const themeSwitch = document.getElementById("theme-switch");
     const modeLabel = document.getElementById("mode-label");
     const resetBtn = document.getElementById("reset-pref");
+    const status = document.getElementById("status");
+    const announceBtn = document.getElementById("announce");
+    const pill = document.getElementById("theme-toggle");
 
-function applyTheme(theme) {
-  if (theme === "light") {
-    document.body.classList.add("light");
-    modeLabel.textContent = "Modo claro";
-  } else {
-    document.body.classList.remove("light");
-    modeLabel.textContent = "Modo oscuro";
-  }
+    // UX: si no hay preferencia guardada, usa la del sistema
+    const systemPrefersLight = () =>
+      window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
 
-  modeLabel.style.opacity = "0.5";
-  setTimeout(() => modeLabel.style.opacity = "1", 150);
-}
+    function setStatus(msg) {
+      status.textContent = msg;
+    }
 
- function loadTheme() {
-  const stored = localStorage.getItem("theme");
+    function applyTheme(theme) {
+      const isLight = theme === "light";
 
-  if (stored) {
-    applyTheme(stored);
-  } else {
-    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-    applyTheme(prefersLight ? "light" : "dark");
-  }
-}
+      // UI
+      document.body.classList.toggle("light", isLight);
+      modeLabel.textContent = isLight ? "Modo claro" : "Modo oscuro";
 
-    toggle.addEventListener("click", () => {
-      const isLight = document.body.classList.contains("light");
-      const newTheme = isLight ? "dark" : "light";
+      // UX accesible: sincroniza switch
+      themeSwitch.checked = isLight;
+      pill.setAttribute("aria-checked", String(isLight));
+
+      // feedback suave
+      setStatus(`Tema activo: ${isLight ? "claro" : "oscuro"}.`);
+    }
+
+    function loadTheme() {
+      const stored = localStorage.getItem("theme");
+
+      if (stored === "light" || stored === "dark") {
+        applyTheme(stored);
+        setStatus("Cargué tu preferencia guardada.");
+      } else {
+        const fallback = systemPrefersLight() ? "light" : "dark";
+        applyTheme(fallback);
+        setStatus("No había preferencia guardada. Usé la del sistema.");
+      }
+    }
+
+    // Cambiar tema (click o teclado en el checkbox)
+    themeSwitch.addEventListener("change", () => {
+      const newTheme = themeSwitch.checked ? "light" : "dark";
       applyTheme(newTheme);
       localStorage.setItem("theme", newTheme);
+      setStatus("Preferencia guardada.");
     });
 
+    // UX: botón reset con confirmación para evitar borrados accidentales
     resetBtn.addEventListener("click", () => {
+      const ok = confirm("¿Seguro que quieres olvidar tu preferencia de tema?");
+      if (!ok) return;
+
       localStorage.removeItem("theme");
-      applyTheme("dark");
+      const fallback = systemPrefersLight() ? "light" : "dark";
+      applyTheme(fallback);
+      setStatus("Preferencia eliminada. Volví al tema del sistema.");
+    });
+
+    // Botón que muestra el estado (solo para demo UX)
+    announceBtn.addEventListener("click", () => {
+      const stored = localStorage.getItem("theme");
+      setStatus(stored ? `Guardado en localStorage: ${stored}` : "No hay tema guardado.");
     });
 
     loadTheme();
